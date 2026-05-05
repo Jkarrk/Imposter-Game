@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Imposter</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f14;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0}
+.screen{display:none;width:100%;max-width:420px;min-height:100vh;padding:24px 20px;flex-direction:column}
+.screen.active{display:flex}
+h1{font-size:26px;font-weight:700;letter-spacing:-0.5px}
+h2{font-size:20px;font-weight:600}
+p{line-height:1.5;color:#aaa}
+.logo{font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:4px}
+.logo span{color:#e85d5d}
+.subtitle{font-size:14px;color:#666;margin-bottom:40px}
+.card{background:#1a1a24;border-radius:16px;padding:20px;margin-bottom:16px}
+.row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.row:last-child{margin-bottom:0}
+label{font-size:14px;color:#ccc;font-weight:500}
+.stepper{display:flex;align-items:center;gap:12px}
+.step-btn{width:36px;height:36px;border-radius:50%;background:#2a2a38;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s}
+.step-btn:active{background:#3a3a50}
+.step-val{font-size:18px;font-weight:600;min-width:24px;text-align:center}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.cat-btn{padding:10px 8px;border-radius:10px;background:#2a2a38;border:1.5px solid transparent;color:#ccc;font-size:13px;font-weight:500;cursor:pointer;text-align:center;transition:all 0.15s}
+.cat-btn.on{background:#1e1e40;border-color:#5f5fd4;color:#a0a0ff}
+.btn{width:100%;padding:16px;border-radius:14px;border:none;font-size:17px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:8px}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:#5f5fd4;color:#fff}
+.btn-primary:active{background:#4f4fc0}
+.btn-danger{background:#e85d5d;color:#fff}
+.btn-ghost{background:#1a1a24;color:#aaa;border:1.5px solid #2a2a38}
+.err{color:#e85d5d;font-size:13px;margin-top:8px;min-height:18px}
+.reveal-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.player-num{font-size:14px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.big-name{font-size:28px;font-weight:700;margin-bottom:32px}
+.tap-card{background:#1a1a24;border-radius:20px;padding:40px 28px;width:100%;cursor:pointer;transition:all 0.15s;border:1.5px solid #2a2a38;user-select:none}
+.tap-card:active{background:#222230;transform:scale(0.98)}
+.tap-label{font-size:15px;color:#666;margin-bottom:8px}
+.tap-action{font-size:20px;font-weight:600;color:#5f5fd4}
+.role-content{display:flex;flex-direction:column;align-items:center;gap:20px;padding:20px 0}
+.role-badge{padding:10px 28px;border-radius:50px;font-size:15px;font-weight:700;letter-spacing:0.5px}
+.badge-word{background:#1e3a2a;color:#4ecf90;border:1.5px solid #2a5a3a}
+.badge-imposter{background:#3a1a1a;color:#e85d5d;border:1.5px solid #5a2a2a}
+.word-reveal{font-size:36px;font-weight:800;letter-spacing:-1px;text-align:center;color:#fff}
+.hint-box{background:#1a1a24;border-radius:12px;padding:14px 18px;text-align:center;width:100%}
+.hint-label{font-size:12px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.hint-val{font-size:20px;font-weight:600;color:#f0a040}
+.pass-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.pass-icon{font-size:48px;margin-bottom:20px}
+.progress-bar{width:100%;height:4px;background:#2a2a38;border-radius:2px;margin-top:auto;margin-bottom:16px}
+.progress-fill{height:100%;background:#5f5fd4;border-radius:2px;transition:width 0.3s}
+.final-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px}
+.final-icon{font-size:56px;margin-bottom:8px}
+.confetti{font-size:24px;letter-spacing:6px}
+.section-title{font-size:12px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.select-all{font-size:13px;color:#5f5fd4;cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div id="setup" class="screen active">
+  <div style="margin-top:32px;margin-bottom:32px">
+    <div class="logo">IMPOST<span>E</span>R</div>
+    <div class="subtitle">The secret word party game</div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <label>Players</label>
+      <div class="stepper">
+        <button class="step-btn" onclick="adj('players',-1)">−</button>
+        <span class="step-val" id="val-players">5</span>
+        <button class="step-btn" onclick="adj('players',1)">+</button>
+      </div>
+    </div>
+    <div class="row">
+      <label>Imposters</label>
+      <div class="stepper">
+        <button class="step-btn" onclick="adj('imposters',-1)">−</button>
+        <span class="step-val" id="val-imposters">1</span>
+        <button class="step-btn" onclick="adj('imposters',1)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="section-title" style="margin-bottom:0">Categories</div>
+      <span class="select-all" onclick="toggleAll()">select all</span>
+    </div>
+    <div class="cat-grid" id="cat-grid"></div>
+  </div>
+
+  <div class="err" id="setup-err"></div>
+  <button class="btn btn-primary" onclick="startGame()">Start Round</button>
+</div>
+
+<div id="reveal-screen" class="screen">
+  <div class="reveal-wrap" id="reveal-wrap"></div>
+  <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+</div>
+
+<div id="final-screen" class="screen">
+  <div class="final-screen">
+    <div class="final-icon">🎲</div>
+    <h2 style="font-size:22px">Everyone's ready!</h2>
+    <p id="final-starter" style="color:#f0a040;font-size:20px;font-weight:700;margin-top:4px"></p>
+    <p style="color:#aaa;font-size:14px;max-width:260px">Discuss who you think the imposter is.</p>
+    <div style="margin-top:24px;width:100%">
+      <button class="btn btn-ghost" style="margin-bottom:12px" onclick="showSetup()">Change settings</button>
+      <button class="btn btn-primary" onclick="newRound()">New Round</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const WORDS = {
+  "Everyday Objects":[["Stanley Cup","tumbler"],["AirPods","wireless"],["Hydro Flask","insulated"],["Ring Light","glow"],["Phone Charger","battery"],["Crocs","foam"],["Yeti Cooler","ice"],["LED Strips","room"],["Polaroid Camera","retro"],["Bean Bag","lounge"],["Dyson Vacuum","suction"],["Nintendo Switch","console"],["MacBook","sleek"],["Axe Body Spray","locker-room"]],
+  "Famous People":[["Taylor Swift","tour"],["Travis Kelce","tight-end"],["MrBeast","challenge"],["Kai Cenat","chaos"],["Olivia Rodrigo","guts"],["Zendaya","fashion"],["Timothée Chalamet","artsy"],["Sydney Sweeney","euphoria"],["Drake","ice"],["Bad Bunny","puerto-rico"],["Sabrina Carpenter","espresso"],["Jenna Ortega","wednesday"],["LeBron James","old"],["Ice Spice","bronx"],["Pedro Pascal","actor"]],
+  "Food and Drink":[["Bud Light","can"],["White Claw","party"],["Celsius","gym"],["Chipotle Bowl","guac"],["Crunchwrap Supreme","taco-bell"],["McChicken","mayo"],["Spicy Margarita","lime"],["Cold Brew","iced"],["Uncrustable","crust"],["Takis","rolled"],["Cane's Sauce","dip"],["Prime","bold"],["Lunchables","crackers"],["Four Loko","chaos"],["Crumbl Cookie","pink-box"]],
+  "Animals":[["Capybara","viral"],["Axolotl","smiling"],["Golden Retriever","family"],["Raccoon","night"],["Sea Otter","floating"],["Red Panda","fluffy"],["Penguin","tuxedo"],["Sloth","sleepy"],["Dolphin","squeaks"],["Frog","croak"],["Goat","climbing"],["Wolf","wild"],["Shark","ocean"],["Flamingo","one-leg"]],
+  "Countries and Cities":[["New York City","subway"],["Los Angeles","traffic"],["Chicago","windy"],["Miami","beach"],["Nashville","country"],["Las Vegas","desert"],["London","rain"],["Tokyo","neon"],["Dubai","luxury"],["Toronto","drake"],["Barcelona","beach"],["Amsterdam","bike"],["Sydney","opera"]],
+  "Hobbies and Activities":[["Pickleball","court"],["Hot Yoga","heated"],["Pilates","studio"],["Thrifting","racks"],["Fantasy Football","draft"],["Bar Hopping","downtown"],["Rock Climbing","grip"],["Binge-Watching","couch"],["Camping","fire"],["Bowling","lane"],["Beer Pong","bounce"],["Golfing","cart"],["Journaling","thoughts"]],
+  "Movies and TV Shows":[["Euphoria","glitter"],["Stranger Things","80s"],["Dune","spice"],["Barbie","pink"],["Oppenheimer","black-white"],["Wednesday","dance"],["Suits","netflix"],["Outer Banks","treasure"],["Breaking Bad","teacher"],["The Office","awkward"],["Shrek","dragon"],["Interstellar","nolan"],["The Hunger Games","arena"]],
+  "Video Games":[["Fortnite","battle"],["Minecraft","heart"],["Call of Duty","war"],["Grand Theft Auto","crime"],["Roblox","custom"],["Valorant","tactical"],["League of Legends","lanes"],["Rocket League","boost"],["Among Us","imposter"],["Elden Ring","horse"],["The Sims","life"],["Mario Kart","shell"],["Animal Crossing","cozy"],["Apex Legends","ping"]],
+  "History":[["9/11","twin"],["World War 2","axis"],["World War 1","trenches"],["Cold War","tension"],["Vietnam War","draft"],["American Revolution","colonies"],["French Revolution","guillotine"],["Boston Tea Party","harbor"],["Pearl Harbor","surprise"],["Chernobyl","radiation"],["Great Depression","crash"],["Titanic","ice"]],
+  "Brawl Stars":[["Brock","four"],["Nita","partner"],["Bo","stun"],["8-Bit","arcade"],["Rico","spam"],["Carl","spin"],["Piper","range"],["Mortis","dash"],["Gem Grab","purple"],["Hot Zone","control"],["Showdown","solo"],["Leon","clone"],["Brawl Ball","kick"],["Crow","toxic"]],
+  "Types of People":[["Gym Rat","split"],["Crypto Bro","volatile"],["Club Promoter","guestlist"],["NPC","routine"],["Class Clown","jokes"],["Twitch Streamer","chat"],["Finance Intern","excel"],["Frat President","chapter"]],
+  "Places":[["TSA Security","scanner"],["Gym Locker Room","bench"],["Dive Bar","cheap"],["Club","lights"],["Beach","tan"],["Casino","bluff"],["Classroom","desk"],["Stadium","team"],["Hotel","reservation"],["Tailgate","grill"],["Hostel","social"]],
+  "Professions":[["Surgeon","operating"],["Investment Banker","deal"],["Club DJ","set"],["Barista","espresso"],["Barber","fade"],["Paramedic","emergency"],["Flight Attendant","aisle"],["Sommelier","notes"],["Tattoo Artist","needle"],["Line Cook","station"]],
+  "Clash Royale":[["Hog Rider","bridge"],["Mega Knight","jump"],["P.E.K.K.A","sword"],["Mini P.E.K.K.A","damage"],["Electro Wizard","stun"],["Wizard","splash"],["Valkyrie","orange"],["Balloon","death-damage"],["Lumberjack","axe"],["Sparky","blast"],["Golem","elixir"],["Elixir Collector","building"],["X-Bow","bolts"],["Mortar","arc"],["Inferno Dragon","flying"],["Princess","bridge"],["Goblin Barrel","toss"],["The Log","knockback"],["Fireball","splash"],["Arrows","swarm"]]
+};
+
+const allCats = ["Everyday Objects","Famous People","Food and Drink","Animals","Countries and Cities","Hobbies and Activities","Movies and TV Shows","Video Games","Clash Royale","History","Brawl Stars","Types of People","Places","Professions"];
+let cfg = {players:5, imposters:1, cats:new Set(["Famous People","Food and Drink","Animals","Movies and TV Shows"])};
+let state = {};
+
+function adj(k,d){
+  if(k==='players'){cfg.players=Math.max(3,Math.min(12,cfg.players+d))}
+  else{cfg.imposters=Math.max(1,Math.min(cfg.players-1,cfg.imposters+d))}
+  document.getElementById('val-'+k).textContent=cfg[k];
+  document.getElementById('setup-err').textContent='';
+}
+
+function buildCats(){
+  const g=document.getElementById('cat-grid');
+  g.innerHTML='';
+  allCats.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='cat-btn'+(cfg.cats.has(c)?' on':'');
+    b.textContent=c;
+    b.onclick=()=>{
+      if(cfg.cats.has(c)){if(cfg.cats.size>1)cfg.cats.delete(c)}
+      else cfg.cats.add(c);
+      buildCats();
+    };
+    g.appendChild(b);
+  });
+}
+
+function toggleAll(){
+  if(cfg.cats.size===allCats.length){cfg.cats=new Set([allCats[0]])}
+  else{cfg.cats=new Set(allCats)}
+  buildCats();
+}
+
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function startGame(){
+  const err=document.getElementById('setup-err');
+  if(cfg.players<3){err.textContent='Need at least 3 players.';return}
+  if(cfg.imposters<1||cfg.imposters>=cfg.players){err.textContent='Imposters must be between 1 and players−1.';return}
+  if(cfg.cats.size===0){err.textContent='Select at least one category.';return}
+  err.textContent='';
+  newRound();
+}
+
+function showFinal(){
+  const starter=Math.floor(Math.random()*cfg.players)+1;
+  document.getElementById('final-starter').textContent=`Player ${starter} goes first!`;
+  show('final-screen');
+}
+
+function newRound(){
+  const cat=rand([...cfg.cats]);
+  const [word,hint]=rand(WORDS[cat]);
+  const imposters=new Set();
+  const pool=Array.from({length:cfg.players},(_,i)=>i);
+  shuffle(pool);
+  pool.slice(0,cfg.imposters).forEach(i=>imposters.add(i));
+  state={cat,word,hint,imposters,total:cfg.players,current:0,phase:'tap'};
+  show('reveal-screen');
+  renderReveal();
+}
+
+function renderReveal(){
+  const w=document.getElementById('reveal-wrap');
+  const p=state.current;
+  const pct=Math.round((p/state.total)*100);
+  document.getElementById('prog').style.width=pct+'%';
+
+  if(state.phase==='tap'){
+    w.innerHTML=`
+      <div class="player-num">Player ${p+1} of ${state.total}</div>
+      <div class="big-name">Your turn</div>
+      <div class="tap-card" onclick="revealRole()">
+        <div class="tap-label">Make sure no one else is looking, then</div>
+        <div class="tap-action">Tap to reveal your role</div>
+      </div>`;
+  } else if(state.phase==='role'){
+    const isImp=state.imposters.has(p);
+    if(isImp){
+      w.innerHTML=`
+        <div class="player-num">Player ${p+1}</div>
+        <div class="role-content">
+          <div class="role-badge badge-imposter">IMPOSTER</div>
+          <div class="word-reveal" style="color:#e85d5d">?</div>
+          <p style="color:#888;font-size:14px;max-width:260px">You don't know the secret word. Blend in using your hint.</p>
+          <div class="hint-box">
+            <div class="hint-label">Your hint</div>
+            <div class="hint-val">${state.hint}</div>
+          </div>
+          <div class="hint-box" style="background:#12121c">
+            <div class="hint-label">Category</div>
+            <div class="hint-val" style="color:#888;font-size:15px">${state.cat}</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost" onclick="nextPlayer()" style="margin-top:auto">Done — pass the phone</button>`;
+    } else {
+      w.innerHTML=`
+        <div class="player-num">Player ${p+1}</div>
+        <div class="role-content">
+          <div class="role-badge badge-word">CREW MEMBER</div>
+          <div class="word-reveal">${state.word}</div>
+          <div class="hint-box" style="background:#12121c">
+            <div class="hint-label">Category</div>
+            <div class="hint-val" style="color:#888;font-size:15px">${state.cat}</div>
+          </div>
+          <p style="color:#666;font-size:13px;max-width:260px">Don't say the word out loud. Describe it without giving it away.</p>
+        </div>
+        <button class="btn btn-ghost" onclick="nextPlayer()" style="margin-top:auto">Done — pass the phone</button>`;
+    }
+  } else if(state.phase==='pass'){
+    w.innerHTML=`
+      <div class="pass-screen">
+        <div class="pass-icon">📱</div>
+        <h2>Pass the phone</h2>
+        <p style="margin-top:8px;font-size:15px">Hand it to Player ${p+2}</p>
+        <button class="btn btn-primary" onclick="continueNext()" style="margin-top:40px">Ready</button>
+      </div>`;
+  }
+}
+
+function revealRole(){
+  state.phase='role';
+  renderReveal();
+}
+
+function nextPlayer(){
+  if(state.current===state.total-1){
+    document.getElementById('prog').style.width='100%';
+    showFinal();
+    return;
+  }
+  state.phase='pass';
+  renderReveal();
+}
+
+function continueNext(){
+  state.current++;
+  state.phase='tap';
+  renderReveal();
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
+  const el=document.getElementById(id);
+  el.style.display='flex';
+  el.classList.add('active');
+}
+
+function showSetup(){show('setup')}
+
+buildCats();
+</script>
+</body>
+</html>
